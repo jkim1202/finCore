@@ -75,7 +75,9 @@ SPRING_PROFILES_ACTIVE=docker ./gradlew bootRun
 
 - 기본 DB 드라이버는 MySQL이다.
 - Flyway는 `classpath:db/migration` 경로를 사용한다.
-- 현재는 초기 설정 단계이므로 실제 마이그레이션 스크립트는 아직 추가되지 않았다.
+- 현재 포함된 마이그레이션:
+  - `V1__init_schema.sql`: customer, account, loan, repayment 관련 초기 스키마
+  - `V2__seed_loan_products.sql`: 기본 대출 상품 시드 데이터
 
 ## Useful Commands
 
@@ -89,5 +91,5 @@ docker compose --env-file .env.local down
 ## Next
 
 - 도메인 엔티티 및 패키지 구조 추가
-- Flyway 초기 마이그레이션 작성
+- JPA 엔티티와 Flyway 스키마 매핑 정리
 - Account / Loan API 구현
