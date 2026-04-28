@@ -76,8 +76,9 @@ SPRING_PROFILES_ACTIVE=docker ./gradlew bootRun
 - 기본 DB 드라이버는 MySQL이다.
 - Flyway는 `classpath:db/migration` 경로를 사용한다.
 - 현재 포함된 마이그레이션:
-  - `V1__init_schema.sql`: customer, account, loan, repayment 관련 초기 스키마
+  - `V1__init_schema.sql`: account, loan, repayment를 포함한 초기 코어 스키마
   - `V2__seed_loan_products.sql`: 기본 대출 상품 시드 데이터
+  - `V3__rename_customer_to_users.sql`: `users`, `user_role`, `user_status` 기준의 사용자 도메인으로 전환
 
 ## Useful Commands
 
