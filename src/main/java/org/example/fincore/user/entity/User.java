@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Table(
         name = "users"
@@ -38,10 +40,18 @@ public class User {
     @Column(name = "birth_date", nullable = false)
     private LocalDate birthDate;
 
-    @Column(name = "user_role", nullable = false)
+    @Column(name = "password_hash", nullable = false)
+    private String passwordHash;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id")
+    )
+    @Column(name = "role", nullable = false)
     @Enumerated(EnumType.STRING)
     @Builder.Default
-    private UserRole role = UserRole.CUSTOMER;
+    private Set<UserRole> roles = new LinkedHashSet<>(Set.of(UserRole.CUSTOMER));
 
     @Column(name = "user_status", nullable = false)
     @Enumerated(EnumType.STRING)

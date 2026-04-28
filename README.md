@@ -79,6 +79,8 @@ SPRING_PROFILES_ACTIVE=docker ./gradlew bootRun
   - `V1__init_schema.sql`: account, loan, repayment를 포함한 초기 코어 스키마
   - `V2__seed_loan_products.sql`: 기본 대출 상품 시드 데이터
   - `V3__rename_customer_to_users.sql`: `users`, `user_role`, `user_status` 기준의 사용자 도메인으로 전환
+  - `V4__split_user_roles.sql`: 단일 사용자 권한 컬럼을 다중 권한 테이블로 분리
+  - `V5__add_user_password_hash.sql`: 사용자 비밀번호 해시 컬럼 추가
 
 ## Useful Commands
 
