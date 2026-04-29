@@ -6,9 +6,9 @@ spring:
   config:
     import: optional:file:./application-local.yml
   datasource:
-    url: ${DB_URL:jdbc:mysql://localhost:3306/fin_core?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8}
-    username: ${DB_USERNAME:fincore}
-    password: ${DB_PASSWORD:fincore}
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
   data:
     redis:
