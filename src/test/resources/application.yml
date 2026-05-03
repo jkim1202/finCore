@@ -13,3 +13,10 @@ spring:
     redis:
       host: localhost
       port: 6379
+
+security:
+  jwt:
+    secret: W2vg1KmHCTqBcxySfbUVhn1CZ2YYgJ7q21ck7PHnT74=
+    refresh-secret: 2XQu7pVVFNQWnh9zkoJrYOCCFioSxvZ0GetSbdWgXBQ=
+    access-exp-minutes: 30
+    refresh-exp-days: 14
