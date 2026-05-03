@@ -43,4 +43,9 @@ public class FinCoreUserDetails implements UserDetails {
     public @NonNull String getUsername() {
         return email;
     }
+
+    @Override
+    public boolean isEnabled(){
+        return status.equals(UserStatus.ACTIVE);
+    }
 }
