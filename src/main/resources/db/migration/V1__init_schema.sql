@@ -1,32 +1,43 @@
-CREATE TABLE customer (
-    customer_id BIGINT NOT NULL AUTO_INCREMENT,
+CREATE TABLE users (
+    user_id BIGINT NOT NULL AUTO_INCREMENT,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(255) NOT NULL,
     phone VARCHAR(30) NOT NULL,
     birth_date DATE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    user_status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
     created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
-    PRIMARY KEY (customer_id),
-    CONSTRAINT uk_customer_email UNIQUE (email),
-    CONSTRAINT uk_customer_phone UNIQUE (phone)
+    PRIMARY KEY (user_id),
+    CONSTRAINT uk_users_email UNIQUE (email),
+    CONSTRAINT uk_users_phone UNIQUE (phone),
+    CONSTRAINT ck_users_status CHECK (user_status IN ('ACTIVE', 'INACTIVE'))
 );
 
-CREATE TABLE account (
-    account_id BIGINT NOT NULL AUTO_INCREMENT,
-    customer_id BIGINT NOT NULL,
+CREATE TABLE user_roles (
+    user_id BIGINT NOT NULL,
+    role VARCHAR(20) NOT NULL,
+    PRIMARY KEY (user_id, role),
+    CONSTRAINT fk_user_roles_user FOREIGN KEY (user_id) REFERENCES users (user_id),
+    CONSTRAINT ck_user_roles_role CHECK (role IN ('CUSTOMER', 'ADMIN'))
+);
+
+CREATE TABLE accounts (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
     account_number VARCHAR(30) NOT NULL,
-    status VARCHAR(20) NOT NULL,
+    account_status VARCHAR(20) NOT NULL,
     balance DECIMAL(18, 2) NOT NULL DEFAULT 0.00,
     created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
-    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
-    PRIMARY KEY (account_id),
+    updated_at DATETIME(6) NULL DEFAULT NULL,
+    PRIMARY KEY (id),
     CONSTRAINT uk_account_number UNIQUE (account_number),
-    CONSTRAINT fk_account_customer FOREIGN KEY (customer_id) REFERENCES customer (customer_id),
-    CONSTRAINT ck_account_status CHECK (status IN ('ACTIVE', 'FROZEN', 'CLOSED')),
-    CONSTRAINT ck_account_balance_non_negative CHECK (balance >= 0)
+    CONSTRAINT fk_accounts_user FOREIGN KEY (user_id) REFERENCES users (user_id),
+    CONSTRAINT ck_accounts_status CHECK (account_status IN ('ACTIVE', 'FROZEN', 'CLOSED')),
+    CONSTRAINT ck_accounts_balance_non_negative CHECK (balance >= 0)
 );
 
 CREATE TABLE account_transaction (
-    transaction_id BIGINT NOT NULL AUTO_INCREMENT,
+    id BIGINT NOT NULL AUTO_INCREMENT,
     account_id BIGINT NOT NULL,
     transaction_type VARCHAR(30) NOT NULL,
     amount DECIMAL(18, 2) NOT NULL,
@@ -36,8 +47,9 @@ CREATE TABLE account_transaction (
     reference_id BIGINT NULL,
     idempotency_key VARCHAR(100) NULL,
     transacted_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
-    PRIMARY KEY (transaction_id),
-    CONSTRAINT fk_account_transaction_account FOREIGN KEY (account_id) REFERENCES account (account_id),
+    PRIMARY KEY (id),
+    CONSTRAINT fk_account_transaction_account FOREIGN KEY (account_id) REFERENCES accounts (id),
+    CONSTRAINT uk_account_transaction_idempotency UNIQUE (account_id, transaction_type, idempotency_key),
     CONSTRAINT ck_account_transaction_type CHECK (
         transaction_type IN ('DEPOSIT', 'WITHDRAWAL', 'LOAN_DISBURSEMENT', 'LOAN_REPAYMENT')
     ),
@@ -64,7 +76,7 @@ CREATE TABLE loan_product (
 
 CREATE TABLE loan_application (
     application_id BIGINT NOT NULL AUTO_INCREMENT,
-    customer_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
     loan_product_id BIGINT NOT NULL,
     disbursement_account_id BIGINT NOT NULL,
     requested_amount DECIMAL(18, 2) NOT NULL,
@@ -75,9 +87,9 @@ CREATE TABLE loan_application (
     submitted_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
     reviewed_at DATETIME(6) NULL,
     PRIMARY KEY (application_id),
-    CONSTRAINT fk_loan_application_customer FOREIGN KEY (customer_id) REFERENCES customer (customer_id),
+    CONSTRAINT fk_loan_application_user FOREIGN KEY (user_id) REFERENCES users (user_id),
     CONSTRAINT fk_loan_application_loan_product FOREIGN KEY (loan_product_id) REFERENCES loan_product (loan_product_id),
-    CONSTRAINT fk_loan_application_disbursement_account FOREIGN KEY (disbursement_account_id) REFERENCES account (account_id),
+    CONSTRAINT fk_loan_application_disbursement_account FOREIGN KEY (disbursement_account_id) REFERENCES accounts (id),
     CONSTRAINT ck_loan_application_status CHECK (
         status IN ('SUBMITTED', 'UNDER_REVIEW', 'APPROVED', 'REJECTED', 'CANCELLED')
     ),
@@ -111,7 +123,7 @@ CREATE TABLE loan_review (
 CREATE TABLE loan (
     loan_id BIGINT NOT NULL AUTO_INCREMENT,
     application_id BIGINT NOT NULL,
-    customer_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
     loan_product_id BIGINT NOT NULL,
     disbursement_account_id BIGINT NOT NULL,
     principal_amount DECIMAL(18, 2) NOT NULL,
@@ -126,9 +138,9 @@ CREATE TABLE loan (
     PRIMARY KEY (loan_id),
     CONSTRAINT uk_loan_application UNIQUE (application_id),
     CONSTRAINT fk_loan_application FOREIGN KEY (application_id) REFERENCES loan_application (application_id),
-    CONSTRAINT fk_loan_customer FOREIGN KEY (customer_id) REFERENCES customer (customer_id),
+    CONSTRAINT fk_loan_user FOREIGN KEY (user_id) REFERENCES users (user_id),
     CONSTRAINT fk_loan_loan_product FOREIGN KEY (loan_product_id) REFERENCES loan_product (loan_product_id),
-    CONSTRAINT fk_loan_disbursement_account FOREIGN KEY (disbursement_account_id) REFERENCES account (account_id),
+    CONSTRAINT fk_loan_disbursement_account FOREIGN KEY (disbursement_account_id) REFERENCES accounts (id),
     CONSTRAINT ck_loan_status CHECK (
         status IN ('PENDING_DISBURSEMENT', 'ACTIVE', 'OVERDUE', 'PAID_OFF', 'DEFAULTED', 'RESTRUCTURED')
     ),
@@ -181,7 +193,7 @@ CREATE TABLE repayment_history (
     PRIMARY KEY (repayment_id),
     CONSTRAINT fk_repayment_history_loan FOREIGN KEY (loan_id) REFERENCES loan (loan_id),
     CONSTRAINT fk_repayment_history_schedule FOREIGN KEY (schedule_id) REFERENCES repayment_schedule (schedule_id),
-    CONSTRAINT fk_repayment_history_account FOREIGN KEY (account_id) REFERENCES account (account_id),
+    CONSTRAINT fk_repayment_history_account FOREIGN KEY (account_id) REFERENCES accounts (id),
     CONSTRAINT ck_repayment_history_payment_type CHECK (
         payment_type IN ('REGULAR', 'PARTIAL', 'LATE_PAYMENT', 'PREPAYMENT', 'EARLY_PAYOFF')
     ),
@@ -194,29 +206,26 @@ CREATE TABLE repayment_history (
     )
 );
 
--- Customer -> accounts lookup
-CREATE INDEX idx_account_customer_id ON account (customer_id);
-
--- Account transaction history in reverse chronological order
-CREATE INDEX idx_account_transaction_account_id_transacted_at ON account_transaction (account_id, transacted_at DESC);
-
--- Reverse lookup from business object to account ledger entries
+CREATE INDEX idx_accounts_user_id ON accounts (user_id);
+CREATE INDEX idx_account_transaction_account_transacted_at ON account_transaction (account_id, transacted_at DESC);
 CREATE INDEX idx_account_transaction_reference ON account_transaction (reference_type, reference_id);
-
--- Customer loan application list
-CREATE INDEX idx_loan_application_customer_id ON loan_application (customer_id);
-
--- Review queue / status-based application lookup
+CREATE INDEX idx_loan_application_user_id ON loan_application (user_id);
 CREATE INDEX idx_loan_application_status_submitted_at ON loan_application (status, submitted_at DESC);
-
--- Customer active or closed loan lookup
-CREATE INDEX idx_loan_customer_id_status ON loan (customer_id, status);
-
--- Per-loan repayment schedule lookup
+CREATE INDEX idx_loan_user_id_status ON loan (user_id, status);
 CREATE INDEX idx_repayment_schedule_loan_id_status_due_date ON repayment_schedule (loan_id, status, due_date);
-
--- Overdue batch scan
 CREATE INDEX idx_repayment_schedule_due_date_status ON repayment_schedule (due_date, status);
-
--- Loan repayment history in reverse chronological order
 CREATE INDEX idx_repayment_history_loan_id_paid_at ON repayment_history (loan_id, paid_at DESC);
+
+INSERT INTO loan_product (
+    product_name,
+    min_amount,
+    max_amount,
+    base_interest_rate,
+    overdue_interest_rate,
+    min_term_months,
+    max_term_months,
+    active
+) VALUES
+    ('Standard Credit Loan', 1000000.00, 50000000.00, 5.20, 8.20, 6, 36, TRUE),
+    ('Starter Salary Loan', 500000.00, 10000000.00, 4.80, 7.80, 6, 24, TRUE),
+    ('Emergency Relief Loan', 300000.00, 3000000.00, 3.90, 6.90, 3, 12, TRUE);

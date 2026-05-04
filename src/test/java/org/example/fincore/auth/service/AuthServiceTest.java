@@ -15,6 +15,7 @@ import org.example.fincore.user.entity.UserRole;
 import org.example.fincore.user.entity.UserStatus;
 import org.example.fincore.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -71,6 +72,7 @@ class AuthServiceTest {
         );
     }
 
+    @DisplayName("회원가입 시 비밀번호를 인코딩하고 활성 CUSTOMER 사용자를 저장한다")
     @Test
     void registerCreatesActiveCustomerUserWithEncodedPassword() {
         RegisterRequestDto request = new RegisterRequestDto(
@@ -100,6 +102,7 @@ class AuthServiceTest {
         assertThat(response.userStatus()).isEqualTo(UserStatus.ACTIVE);
     }
 
+    @DisplayName("중복 이메일로 회원가입하면 USER_EMAIL_ALREADY_EXISTS 예외를 던진다")
     @Test
     void registerRejectsDuplicatedEmail() {
         RegisterRequestDto request = new RegisterRequestDto(
@@ -117,6 +120,7 @@ class AuthServiceTest {
                         assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.USER_EMAIL_ALREADY_EXISTS));
     }
 
+    @DisplayName("로그인 인증이 성공하면 JWT access token과 refresh token을 발급한다")
     @Test
     void loginAuthenticatesAndReturnsTokens() {
         LoginRequestDto request = new LoginRequestDto("user@example.com", "raw-password");
@@ -134,6 +138,7 @@ class AuthServiceTest {
         assertThat(response.refreshToken()).isEqualTo("refresh-token");
     }
 
+    @DisplayName("로그인 인증 실패 시 AUTH_LOGIN_FAILED 예외를 던진다")
     @Test
     void loginRejectsBadCredentials() {
         LoginRequestDto request = new LoginRequestDto("user@example.com", "wrong-password");
@@ -145,6 +150,7 @@ class AuthServiceTest {
                         assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.AUTH_LOGIN_FAILED));
     }
 
+    @DisplayName("비활성 사용자는 로그인 토큰 발급을 거부한다")
     @Test
     void loginRejectsInactiveUser() {
         LoginRequestDto request = new LoginRequestDto("user@example.com", "raw-password");
@@ -155,9 +161,10 @@ class AuthServiceTest {
 
         assertThatThrownBy(() -> authService.login(request))
                 .isInstanceOfSatisfying(BusinessException.class, exception ->
-                        assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.AUTH_STATUS_NOT_ACTIVE));
+                        assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.AUTH_USER_STATUS_NOT_ACTIVE));
     }
 
+    @DisplayName("유효한 refresh token이면 새 토큰 쌍을 발급한다")
     @Test
     void refreshTokenValidatesRefreshTokenAndReturnsNewTokens() {
         RefreshRequestDto request = new RefreshRequestDto("refresh-token");
@@ -174,6 +181,7 @@ class AuthServiceTest {
         assertThat(response.refreshToken()).isEqualTo("new-refresh-token");
     }
 
+    @DisplayName("유효하지 않은 refresh token이면 AUTH_INVALID_TOKEN 예외를 던진다")
     @Test
     void refreshTokenRejectsInvalidRefreshToken() {
         RefreshRequestDto request = new RefreshRequestDto("refresh-token");

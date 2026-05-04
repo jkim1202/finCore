@@ -42,7 +42,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
                         request ->
-                                request.requestMatchers("/api/auth/**",          // register/login/refresh
+                                request.requestMatchers("/api/v1/auth/**",          // register/login/refresh
                                                 "/actuator/health")
                                         .permitAll()
                                         .requestMatchers("/api/admin/**")

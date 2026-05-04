@@ -1,5 +1,6 @@
 package org.example.fincore.auth.service;
 
+import lombok.AllArgsConstructor;
 import org.example.fincore.auth.dto.*;
 import org.example.fincore.exception.BusinessException;
 import org.example.fincore.exception.ErrorCode;
@@ -20,25 +21,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashSet;
 
 @Service
+@AllArgsConstructor
 public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
-
-    public AuthService(UserRepository userRepository,
-                       PasswordEncoder passwordEncoder,
-                       JwtTokenProvider jwtTokenProvider,
-                       AuthenticationManager authenticationManager,
-                       UserDetailsService userDetailsService
-    ) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtTokenProvider = jwtTokenProvider;
-        this.authenticationManager = authenticationManager;
-        this.userDetailsService = userDetailsService;
-    }
 
     @Transactional
     public RegisterResponseDto register(RegisterRequestDto authRequestDto) {
@@ -76,7 +65,7 @@ public class AuthService {
         }
         UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequestDto.email());
         if (!userDetails.isEnabled()) {
-            throw new BusinessException(ErrorCode.AUTH_STATUS_NOT_ACTIVE);
+            throw new BusinessException(ErrorCode.AUTH_USER_STATUS_NOT_ACTIVE);
         }
         String accessToken = jwtTokenProvider.generateAccessToken(userDetails);
         String refreshToken = jwtTokenProvider.generateRefreshToken(userDetails);
