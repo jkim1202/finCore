@@ -8,7 +8,6 @@ import org.example.fincore.account.usecase.AccountDepositUseCase;
 import org.example.fincore.account.usecase.AccountQueryUseCase;
 import org.example.fincore.account.usecase.AccountWithdrawUseCase;
 import org.example.fincore.security.FinCoreUserDetails;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
