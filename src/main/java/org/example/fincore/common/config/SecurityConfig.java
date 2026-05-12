@@ -1,4 +1,4 @@
-package org.example.fincore.config;
+package org.example.fincore.common.config;
 
 import org.example.fincore.security.JwtAuthenticationEntryPoint;
 import org.example.fincore.security.JwtAuthenticationFilter;

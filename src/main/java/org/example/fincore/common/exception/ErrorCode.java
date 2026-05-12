@@ -1,4 +1,4 @@
-package org.example.fincore.exception;
+package org.example.fincore.common.exception;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -16,14 +16,18 @@ public enum ErrorCode {
     AUTH_UNSUPPORTED_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_004", "지원하지 않는 토큰 타입/구조입니다."),
     AUTH_USER_STATUS_NOT_ACTIVE(HttpStatus.FORBIDDEN, "AUTH_005", "비활성화/삭제된 계정입니다."),
 
-
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER_001", "사용자를 찾을 수 없습니다."),
     USER_EMAIL_ALREADY_EXISTS(HttpStatus.CONFLICT, "USER_002", "이미 사용 중인 이메일입니다."),
 
     ACCOUNT_NOT_FOUND(HttpStatus.CONFLICT, "ACCOUNT_001", "해당 계좌를 찾을 수 없습니다."),
     ACCOUNT_NOT_BELONG_TO_USER(HttpStatus.FORBIDDEN, "ACCOUNT_002", "해당 계좌를 조회할 권한이 없습니다."),
     ACCOUNT_STATUS_NOT_ACTIVE(HttpStatus.FORBIDDEN, "ACCOUNT_003", "해당 계좌는 현재 사용할 수 없습니다."),
-    ACCOUNT_BALANCE_NOT_ENOUGH(HttpStatus.BAD_REQUEST, "ACCOUNT_004", "계좌 잔액이 부족합니다.");
+    ACCOUNT_BALANCE_NOT_ENOUGH(HttpStatus.BAD_REQUEST, "ACCOUNT_004", "계좌 잔액이 부족합니다."),
+
+    LOAN_PRODUCT_NOT_FOUNT(HttpStatus.NOT_FOUND, "LOAN_001", "대출 상품을 찾을 수 없습니다."),
+    LOAN_PRODUCT_NOT_ACTIVE(HttpStatus.FORBIDDEN, "LOAN_002", "해당 상품은 현재 비활성 상태입니다."),
+    INVALID_LOAN_AMOUNT(HttpStatus.BAD_REQUEST, "LOAN_003", "신청 금액이 유효하지 않습니다."),
+    INVALID_LOAN_TERM_MONTHS(HttpStatus.BAD_REQUEST, "LOAN_004", "신청 상환 기간이 유효하지 않습니다.");
 
     private final HttpStatus status;
     private final String code;

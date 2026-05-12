@@ -5,8 +5,8 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
-import org.example.fincore.exception.BusinessException;
-import org.example.fincore.exception.ErrorCode;
+import org.example.fincore.common.exception.BusinessException;
+import org.example.fincore.common.exception.ErrorCode;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 

@@ -1,5 +1,6 @@
 package org.example.fincore.account.service;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import org.example.fincore.account.dto.AccountDepositResponseDto;
 import org.example.fincore.account.entity.Account;
@@ -8,8 +9,8 @@ import org.example.fincore.account.entity.AccountTransaction;
 import org.example.fincore.account.entity.TransactionType;
 import org.example.fincore.account.repository.AccountRepository;
 import org.example.fincore.account.repository.AccountTransactionRepository;
-import org.example.fincore.exception.BusinessException;
-import org.example.fincore.exception.ErrorCode;
+import org.example.fincore.common.exception.BusinessException;
+import org.example.fincore.common.exception.ErrorCode;
 import org.example.fincore.user.entity.User;
 import org.springframework.stereotype.Service;
 
@@ -98,5 +99,16 @@ public class AccountService {
                 .build();
 
         return accountTransactionRepository.save(accountTransaction);
+    }
+
+    public Account findAccountByAccountNumberAndUser(String accountNumber, User user) {
+        Account account = accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ACCOUNT_NOT_FOUND));
+
+        validateUserOwnsAccount(user, account);
+
+        validateAccountStatusValid(account);
+
+        return account;
     }
 }

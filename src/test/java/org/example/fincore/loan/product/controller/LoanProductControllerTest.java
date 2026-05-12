@@ -1,6 +1,6 @@
 package org.example.fincore.loan.product.controller;
 
-import org.example.fincore.exception.GlobalExceptionHandler;
+import org.example.fincore.common.exception.GlobalExceptionHandler;
 import org.example.fincore.loan.product.dto.LoanProductsSearchRequestDto;
 import org.example.fincore.loan.product.dto.LoanProductsSearchResponseDto;
 import org.example.fincore.loan.product.service.LoanProductService;

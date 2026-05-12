@@ -2,8 +2,8 @@ package org.example.fincore.auth.service;
 
 import lombok.AllArgsConstructor;
 import org.example.fincore.auth.dto.*;
-import org.example.fincore.exception.BusinessException;
-import org.example.fincore.exception.ErrorCode;
+import org.example.fincore.common.exception.BusinessException;
+import org.example.fincore.common.exception.ErrorCode;
 import org.example.fincore.security.JwtTokenProvider;
 import org.example.fincore.user.entity.User;
 import org.example.fincore.user.entity.UserRole;

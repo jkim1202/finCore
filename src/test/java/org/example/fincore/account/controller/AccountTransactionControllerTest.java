@@ -3,7 +3,7 @@ package org.example.fincore.account.controller;
 import org.example.fincore.account.dto.TransactionViewResponseDto;
 import org.example.fincore.account.entity.TransactionType;
 import org.example.fincore.account.usecase.AccountQueryUseCase;
-import org.example.fincore.exception.GlobalExceptionHandler;
+import org.example.fincore.common.exception.GlobalExceptionHandler;
 import org.example.fincore.security.FinCoreUserDetails;
 import org.example.fincore.user.entity.UserStatus;
 import org.junit.jupiter.api.BeforeEach;

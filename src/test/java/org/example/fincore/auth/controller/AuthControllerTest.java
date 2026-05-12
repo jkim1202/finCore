@@ -4,7 +4,7 @@ import org.example.fincore.auth.dto.LoginResponseDto;
 import org.example.fincore.auth.dto.RefreshResponseDto;
 import org.example.fincore.auth.dto.RegisterResponseDto;
 import org.example.fincore.auth.service.AuthService;
-import org.example.fincore.exception.GlobalExceptionHandler;
+import org.example.fincore.common.exception.GlobalExceptionHandler;
 import org.example.fincore.user.entity.UserStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
