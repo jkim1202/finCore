@@ -10,7 +10,7 @@ import org.example.fincore.account.usecase.AccountCreateUseCase;
 import org.example.fincore.account.usecase.AccountDepositUseCase;
 import org.example.fincore.account.usecase.AccountQueryUseCase;
 import org.example.fincore.account.usecase.AccountWithdrawUseCase;
-import org.example.fincore.exception.GlobalExceptionHandler;
+import org.example.fincore.common.exception.GlobalExceptionHandler;
 import org.example.fincore.security.FinCoreUserDetails;
 import org.example.fincore.user.entity.UserStatus;
 import org.junit.jupiter.api.BeforeEach;

@@ -1,4 +1,4 @@
-package org.example.fincore.exception;
+package org.example.fincore.common.exception;
 
 import lombok.Getter;
 

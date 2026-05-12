@@ -2,8 +2,8 @@ package org.example.fincore.account.service;
 
 import org.example.fincore.account.entity.AccountNumberSequence;
 import org.example.fincore.account.repository.AccountNumberSequenceRepository;
-import org.example.fincore.exception.BusinessException;
-import org.example.fincore.exception.ErrorCode;
+import org.example.fincore.common.exception.BusinessException;
+import org.example.fincore.common.exception.ErrorCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

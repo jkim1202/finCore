@@ -1,8 +1,8 @@
 package org.example.fincore.user.service;
 
 import lombok.AllArgsConstructor;
-import org.example.fincore.exception.BusinessException;
-import org.example.fincore.exception.ErrorCode;
+import org.example.fincore.common.exception.BusinessException;
+import org.example.fincore.common.exception.ErrorCode;
 import org.example.fincore.security.FinCoreUserDetails;
 import org.example.fincore.user.entity.User;
 import org.example.fincore.user.entity.UserStatus;
