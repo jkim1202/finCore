@@ -16,7 +16,7 @@ import org.example.fincore.security.FinCoreUserDetails;
 import org.example.fincore.user.entity.User;
 import org.example.fincore.user.entity.UserRole;
 import org.example.fincore.user.entity.UserStatus;
-import org.example.fincore.user.service.UserService;
+import org.example.fincore.user.component.UserReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -46,7 +46,7 @@ class LoanApplyUseCaseTest {
     private AccountService accountService;
 
     @Mock
-    private UserService userService;
+    private UserReader userReader;
 
     @Mock
     private LoanProductService loanProductService;
@@ -58,7 +58,7 @@ class LoanApplyUseCaseTest {
     void setUp() {
         loanApplyUseCase = new LoanApplyUseCase(
                 accountService,
-                userService,
+                userReader,
                 loanProductService,
                 loanApplicationRepository
         );
@@ -72,7 +72,7 @@ class LoanApplyUseCaseTest {
         LoanProduct loanProduct = loanProduct();
         Account account = account(user);
         LoanApplicationRequestDto request = request();
-        when(userService.findUserByUserDetails(userDetails)).thenReturn(user);
+        when(userReader.getActiveUser(userDetails)).thenReturn(user);
         when(loanProductService.getLoanProduct(loanProduct.getLoanProductId())).thenReturn(loanProduct);
         when(accountService.findAccountByAccountNumberAndUser(account.getAccountNumber(), user)).thenReturn(account);
         when(loanApplicationRepository.save(org.mockito.ArgumentMatchers.any(LoanApplication.class)))
@@ -102,7 +102,7 @@ class LoanApplyUseCaseTest {
         FinCoreUserDetails userDetails = userDetails(1L);
         User user = user(1L);
         LoanApplicationRequestDto request = request();
-        when(userService.findUserByUserDetails(userDetails)).thenReturn(user);
+        when(userReader.getActiveUser(userDetails)).thenReturn(user);
         when(loanProductService.getLoanProduct(request.loanProductId()))
                 .thenThrow(new BusinessException(ErrorCode.LOAN_PRODUCT_NOT_FOUNT));
 
@@ -120,7 +120,7 @@ class LoanApplyUseCaseTest {
         User user = user(1L);
         LoanProduct loanProduct = loanProduct();
         LoanApplicationRequestDto request = request();
-        when(userService.findUserByUserDetails(userDetails)).thenReturn(user);
+        when(userReader.getActiveUser(userDetails)).thenReturn(user);
         when(loanProductService.getLoanProduct(request.loanProductId())).thenReturn(loanProduct);
         when(accountService.findAccountByAccountNumberAndUser(request.disbursementAccount(), user))
                 .thenThrow(new BusinessException(ErrorCode.ACCOUNT_NOT_FOUND));
@@ -147,13 +147,13 @@ class LoanApplyUseCaseTest {
                 new BigDecimal("50000000.00"),
                 BigDecimal.ZERO
         );
-        when(userService.findUserByUserDetails(userDetails)).thenReturn(user);
+        when(userReader.getActiveUser(userDetails)).thenReturn(user);
         when(loanProductService.getLoanProduct(request.loanProductId())).thenReturn(loanProduct);
         when(accountService.findAccountByAccountNumberAndUser(request.disbursementAccount(), user)).thenReturn(account);
 
         assertThatThrownBy(() -> loanApplyUseCase.applyLoan(request, userDetails))
                 .isInstanceOfSatisfying(BusinessException.class, exception ->
-                        assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.INVALID_LOAN_AMOUNT));
+                        assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.LOAN_PRODUCT_INVALID_LOAN_AMOUNT));
 
         verifyNoInteractions(loanApplicationRepository);
     }

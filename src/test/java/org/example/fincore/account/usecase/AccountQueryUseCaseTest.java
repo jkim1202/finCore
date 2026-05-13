@@ -15,7 +15,7 @@ import org.example.fincore.security.FinCoreUserDetails;
 import org.example.fincore.user.entity.User;
 import org.example.fincore.user.entity.UserRole;
 import org.example.fincore.user.entity.UserStatus;
-import org.example.fincore.user.service.UserService;
+import org.example.fincore.user.component.UserReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -48,14 +48,14 @@ class AccountQueryUseCaseTest {
     private AccountService accountService;
 
     @Mock
-    private UserService userService;
+    private UserReader userReader;
 
     @Mock
     private AccountTransactionRepository accountTransactionRepository;
 
     @BeforeEach
     void setUp() {
-        accountQueryUseCase = new AccountQueryUseCase(accountService, userService, accountTransactionRepository);
+        accountQueryUseCase = new AccountQueryUseCase(accountService, userReader, accountTransactionRepository);
     }
 
     @DisplayName("계좌 상세 조회는 소유자 검증 후 계좌 정보를 반환한다")
@@ -64,7 +64,7 @@ class AccountQueryUseCaseTest {
         FinCoreUserDetails userDetails = userDetails(1L);
         User user = user(1L);
         Account account = account(10L, user, BigDecimal.valueOf(1_000));
-        when(userService.findUserByUserDetails(userDetails)).thenReturn(user);
+        when(userReader.getActiveUser(userDetails)).thenReturn(user);
         when(accountService.findAccount(user, account.getId())).thenReturn(account);
 
         AccountDetailResponseDto response = accountQueryUseCase.getAccountDetail(account.getId(), userDetails);
@@ -80,7 +80,7 @@ class AccountQueryUseCaseTest {
         User user = user(1L);
         Account account = account(10L, user, BigDecimal.valueOf(1_000));
         AccountTransaction transaction = transaction(100L, account, TransactionType.DEPOSIT, BigDecimal.valueOf(500), BigDecimal.valueOf(1_500));
-        when(userService.findUserByUserDetails(userDetails)).thenReturn(user);
+        when(userReader.getActiveUser(userDetails)).thenReturn(user);
         when(accountService.findAccount(user, account.getId())).thenReturn(account);
         when(accountTransactionRepository.findByAccountId(eq(account.getId()), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(transaction)));
@@ -99,7 +99,7 @@ class AccountQueryUseCaseTest {
         User user = user(1L);
         Account account = account(10L, user, BigDecimal.valueOf(1_000));
         AccountTransaction transaction = transaction(100L, account, TransactionType.DEPOSIT, BigDecimal.valueOf(500), BigDecimal.valueOf(1_500));
-        when(userService.findUserByUserDetails(userDetails)).thenReturn(user);
+        when(userReader.getActiveUser(userDetails)).thenReturn(user);
         when(accountTransactionRepository.findByTransactionId(transaction.getId())).thenReturn(Optional.of(transaction));
 
         TransactionViewResponseDto response = accountQueryUseCase.getTransaction(transaction.getId(), userDetails);
@@ -112,7 +112,7 @@ class AccountQueryUseCaseTest {
     void getTransactionRejectsMissingTransaction() {
         FinCoreUserDetails userDetails = userDetails(1L);
         User user = user(1L);
-        when(userService.findUserByUserDetails(userDetails)).thenReturn(user);
+        when(userReader.getActiveUser(userDetails)).thenReturn(user);
         when(accountTransactionRepository.findByTransactionId(100L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> accountQueryUseCase.getTransaction(100L, userDetails))
@@ -128,7 +128,7 @@ class AccountQueryUseCaseTest {
         User owner = user(1L);
         Account account = account(10L, owner, BigDecimal.valueOf(1_000));
         AccountTransaction transaction = transaction(100L, account, TransactionType.DEPOSIT, BigDecimal.valueOf(500), BigDecimal.valueOf(1_500));
-        when(userService.findUserByUserDetails(userDetails)).thenReturn(requester);
+        when(userReader.getActiveUser(userDetails)).thenReturn(requester);
         when(accountTransactionRepository.findByTransactionId(transaction.getId())).thenReturn(Optional.of(transaction));
 
         assertThatThrownBy(() -> accountQueryUseCase.getTransaction(transaction.getId(), userDetails))

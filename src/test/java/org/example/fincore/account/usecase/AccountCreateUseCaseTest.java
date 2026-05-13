@@ -11,7 +11,7 @@ import org.example.fincore.security.FinCoreUserDetails;
 import org.example.fincore.user.entity.User;
 import org.example.fincore.user.entity.UserRole;
 import org.example.fincore.user.entity.UserStatus;
-import org.example.fincore.user.service.UserService;
+import org.example.fincore.user.component.UserReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,14 +39,14 @@ class AccountCreateUseCaseTest {
     private AccountService accountService;
 
     @Mock
-    private UserService userService;
+    private UserReader userReader;
 
     @Mock
     private AccountNumberGenerator accountNumberGenerator;
 
     @BeforeEach
     void setUp() {
-        accountCreateUseCase = new AccountCreateUseCase(accountService, userService, accountNumberGenerator);
+        accountCreateUseCase = new AccountCreateUseCase(accountService, userReader, accountNumberGenerator);
     }
 
     @DisplayName("인증 사용자로 계좌번호를 생성하고 계좌를 개설한다")
@@ -55,7 +55,7 @@ class AccountCreateUseCaseTest {
         FinCoreUserDetails userDetails = userDetails(1L);
         User user = user(1L);
         Account account = account(10L, user, BigDecimal.ZERO);
-        when(userService.findUserByUserDetails(userDetails)).thenReturn(user);
+        when(userReader.getActiveUser(userDetails)).thenReturn(user);
         when(accountNumberGenerator.generate()).thenReturn("110-000-000001");
         when(accountService.createAccount("110-000-000001", user)).thenReturn(account);
 
@@ -72,7 +72,7 @@ class AccountCreateUseCaseTest {
     @Test
     void createAccountPropagatesUserLookupFailure() {
         FinCoreUserDetails userDetails = userDetails(1L);
-        when(userService.findUserByUserDetails(userDetails))
+        when(userReader.getActiveUser(userDetails))
                 .thenThrow(new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         assertThatThrownBy(() -> accountCreateUseCase.createAccount(userDetails))

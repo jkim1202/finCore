@@ -7,8 +7,8 @@ import org.example.fincore.account.entity.Account;
 import org.example.fincore.account.repository.AccountTransactionRepository;
 import org.example.fincore.account.service.AccountService;
 import org.example.fincore.security.FinCoreUserDetails;
+import org.example.fincore.user.component.UserReader;
 import org.example.fincore.user.entity.User;
-import org.example.fincore.user.service.UserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,12 +16,12 @@ import org.springframework.transaction.annotation.Transactional;
 @AllArgsConstructor
 public class AccountDepositUseCase {
     private AccountService accountService;
-    private UserService userService;
+    private UserReader userReader;
     private AccountTransactionRepository accountTransactionRepository;
 
     @Transactional
     public AccountDepositResponseDto deposit(Long accountId, FinCoreUserDetails userDetails, AccountDepositRequestDto accountDepositRequestDto) {
-        User user = userService.findUserByUserDetails(userDetails);
+        User user = userReader.getActiveUser(userDetails);
 
         Account account = accountService.findAccount(user, accountId);
 

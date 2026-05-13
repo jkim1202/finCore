@@ -87,13 +87,13 @@ public class LoanApplication {
 
     private static void validateRequestedTerm(LoanProduct loanProduct, Integer requestedTermMonths) {
         if(loanProduct.getMinTermMonths() > requestedTermMonths || loanProduct.getMaxTermMonths() < requestedTermMonths) {
-            throw new BusinessException(ErrorCode.INVALID_LOAN_TERM_MONTHS);
+            throw new BusinessException(ErrorCode.LOAN_PRODUCT_INVALID_LOAN_TERM_MONTHS);
         }
     }
 
     private static void validateRequestedAmount(LoanProduct loanProduct, BigDecimal requestedAmount) {
         if(requestedAmount.compareTo(loanProduct.getMinAmount()) < 0 || requestedAmount.compareTo(loanProduct.getMaxAmount()) > 0){
-            throw new BusinessException(ErrorCode.INVALID_LOAN_AMOUNT);
+            throw new BusinessException(ErrorCode.LOAN_PRODUCT_INVALID_LOAN_AMOUNT);
         }
     }
 }

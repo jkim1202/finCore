@@ -90,7 +90,7 @@ class LoanApplicationTest {
                 BigDecimal.ZERO
         ))
                 .isInstanceOfSatisfying(BusinessException.class, exception ->
-                        assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.INVALID_LOAN_AMOUNT));
+                        assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.LOAN_PRODUCT_INVALID_LOAN_AMOUNT));
     }
 
     @DisplayName("상품 기간 범위를 벗어나면 대출 신청을 생성하지 않는다")
@@ -106,7 +106,7 @@ class LoanApplicationTest {
                 BigDecimal.ZERO
         ))
                 .isInstanceOfSatisfying(BusinessException.class, exception ->
-                        assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.INVALID_LOAN_TERM_MONTHS));
+                        assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.LOAN_PRODUCT_INVALID_LOAN_TERM_MONTHS));
     }
 
     private User user() {

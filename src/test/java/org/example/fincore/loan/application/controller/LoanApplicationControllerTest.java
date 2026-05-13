@@ -2,7 +2,9 @@ package org.example.fincore.loan.application.controller;
 
 import org.example.fincore.common.exception.GlobalExceptionHandler;
 import org.example.fincore.loan.application.dto.LoanApplicationResponseDto;
+import org.example.fincore.loan.application.dto.LoanApplicationSearchResponseDto;
 import org.example.fincore.loan.application.entity.LoanApplicationStatus;
+import org.example.fincore.loan.application.usecase.LoanApplicationSearchUseCase;
 import org.example.fincore.loan.application.usecase.LoanApplyUseCase;
 import org.example.fincore.security.FinCoreUserDetails;
 import org.example.fincore.user.entity.UserStatus;
@@ -33,6 +35,7 @@ import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -45,13 +48,16 @@ class LoanApplicationControllerTest {
     @Mock
     private LoanApplyUseCase loanApplyUseCase;
 
+    @Mock
+    private LoanApplicationSearchUseCase loanApplicationSearchUseCase;
+
     @BeforeEach
     void setUp() {
         LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
         validator.afterPropertiesSet();
 
         mockMvc = MockMvcBuilders
-                .standaloneSetup(new LoanApplicationController(loanApplyUseCase))
+                .standaloneSetup(new LoanApplicationController(loanApplyUseCase, loanApplicationSearchUseCase))
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .setValidator(validator)
                 .setCustomArgumentResolvers(authenticationPrincipalResolver())
@@ -112,6 +118,42 @@ class LoanApplicationControllerTest {
                 .andExpect(jsonPath("$.code").value("COMMON_001"));
 
         verifyNoInteractions(loanApplyUseCase);
+    }
+
+    @DisplayName("대출 신청 조회 요청이 성공하면 신청 상세 정보를 200으로 반환한다")
+    @Test
+    void getLoanApplicationReturnsApplicationDetail() throws Exception {
+        when(loanApplicationSearchUseCase.searchLoanApplication(
+                org.mockito.ArgumentMatchers.eq(1L),
+                nullable(FinCoreUserDetails.class)
+        ))
+                .thenReturn(new LoanApplicationSearchResponseDto(
+                        1L,
+                        1L,
+                        "Kim User",
+                        1L,
+                        "Standard Credit Loan",
+                        "110-000-000001",
+                        new BigDecimal("1000000.00"),
+                        12,
+                        new BigDecimal("50000000.00"),
+                        LoanApplicationStatus.SUBMITTED,
+                        LocalDateTime.of(2026, 5, 13, 1, 0),
+                        null
+                ));
+
+        mockMvc.perform(get("/api/v1/loan-applications/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.applicationId").value(1))
+                .andExpect(jsonPath("$.userId").value(1))
+                .andExpect(jsonPath("$.userName").value("Kim User"))
+                .andExpect(jsonPath("$.loanProductId").value(1))
+                .andExpect(jsonPath("$.loanProductName").value("Standard Credit Loan"))
+                .andExpect(jsonPath("$.disbursementAccountNumber").value("110-000-000001"))
+                .andExpect(jsonPath("$.requestedAmount").value(1000000))
+                .andExpect(jsonPath("$.requestedTermMonths").value(12))
+                .andExpect(jsonPath("$.annualIncome").value(50000000))
+                .andExpect(jsonPath("$.status").value("SUBMITTED"));
     }
 
     private HandlerMethodArgumentResolver authenticationPrincipalResolver() {

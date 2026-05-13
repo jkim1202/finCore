@@ -13,7 +13,7 @@ import org.example.fincore.security.FinCoreUserDetails;
 import org.example.fincore.user.entity.User;
 import org.example.fincore.user.entity.UserRole;
 import org.example.fincore.user.entity.UserStatus;
-import org.example.fincore.user.service.UserService;
+import org.example.fincore.user.component.UserReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -40,11 +40,11 @@ class AccountWithdrawUseCaseTest {
     private AccountService accountService;
 
     @Mock
-    private UserService userService;
+    private UserReader userReader;
 
     @BeforeEach
     void setUp() {
-        accountWithdrawUseCase = new AccountWithdrawUseCase(accountService, userService);
+        accountWithdrawUseCase = new AccountWithdrawUseCase(accountService, userReader);
     }
 
     @DisplayName("출금 유스케이스는 락 계좌를 조회한 뒤 출금 결과를 반환한다")
@@ -55,7 +55,7 @@ class AccountWithdrawUseCaseTest {
         Account account = account(10L, user, BigDecimal.valueOf(1_000));
         AccountWithdrawRequestDto request = new AccountWithdrawRequestDto(BigDecimal.valueOf(400));
         AccountTransaction transaction = transaction(100L, account, TransactionType.WITHDRAWAL, request.amount(), BigDecimal.valueOf(600));
-        when(userService.findUserByUserDetails(userDetails)).thenReturn(user);
+        when(userReader.getActiveUser(userDetails)).thenReturn(user);
         when(accountService.findAccountForUpdate(user, account.getId())).thenReturn(account);
         when(accountService.withdraw(request.amount(), account)).thenReturn(transaction);
 
@@ -73,7 +73,7 @@ class AccountWithdrawUseCaseTest {
         User user = user(1L);
         Account account = account(10L, user, BigDecimal.valueOf(100));
         AccountWithdrawRequestDto request = new AccountWithdrawRequestDto(BigDecimal.valueOf(101));
-        when(userService.findUserByUserDetails(userDetails)).thenReturn(user);
+        when(userReader.getActiveUser(userDetails)).thenReturn(user);
         when(accountService.findAccountForUpdate(user, account.getId())).thenReturn(account);
         when(accountService.withdraw(request.amount(), account))
                 .thenThrow(new BusinessException(ErrorCode.ACCOUNT_BALANCE_NOT_ENOUGH));

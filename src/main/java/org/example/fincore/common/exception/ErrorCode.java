@@ -24,10 +24,13 @@ public enum ErrorCode {
     ACCOUNT_STATUS_NOT_ACTIVE(HttpStatus.FORBIDDEN, "ACCOUNT_003", "해당 계좌는 현재 사용할 수 없습니다."),
     ACCOUNT_BALANCE_NOT_ENOUGH(HttpStatus.BAD_REQUEST, "ACCOUNT_004", "계좌 잔액이 부족합니다."),
 
-    LOAN_PRODUCT_NOT_FOUNT(HttpStatus.NOT_FOUND, "LOAN_001", "대출 상품을 찾을 수 없습니다."),
-    LOAN_PRODUCT_NOT_ACTIVE(HttpStatus.FORBIDDEN, "LOAN_002", "해당 상품은 현재 비활성 상태입니다."),
-    INVALID_LOAN_AMOUNT(HttpStatus.BAD_REQUEST, "LOAN_003", "신청 금액이 유효하지 않습니다."),
-    INVALID_LOAN_TERM_MONTHS(HttpStatus.BAD_REQUEST, "LOAN_004", "신청 상환 기간이 유효하지 않습니다.");
+    LOAN_PRODUCT_NOT_FOUNT(HttpStatus.NOT_FOUND, "LOAN_PRODUCT_001", "대출 상품을 찾을 수 없습니다."),
+    LOAN_PRODUCT_NOT_ACTIVE(HttpStatus.FORBIDDEN, "LOAN_PRODUCT_002", "해당 상품은 현재 비활성 상태입니다."),
+    LOAN_PRODUCT_INVALID_LOAN_AMOUNT(HttpStatus.BAD_REQUEST, "LOAN_PRODUCT_003", "신청 금액이 유효하지 않습니다."),
+    LOAN_PRODUCT_INVALID_LOAN_TERM_MONTHS(HttpStatus.BAD_REQUEST, "LOAN_PRODUCT_004", "신청 상환 기간이 유효하지 않습니다."),
+
+    LOAN_APPLICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "LOAN_APPLICATION_001", "해당 대출 신청을 찾을 수 없습니다."),
+    LOAN_APPLICATION_ACCESS_DENIED(HttpStatus.FORBIDDEN, "LOAN_APPLICATION_002", "해당 대출 신청을 조회할 권한이 없습니다.");
 
     private final HttpStatus status;
     private final String code;
