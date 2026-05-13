@@ -11,8 +11,8 @@ import org.example.fincore.account.service.AccountService;
 import org.example.fincore.common.exception.BusinessException;
 import org.example.fincore.common.exception.ErrorCode;
 import org.example.fincore.security.FinCoreUserDetails;
+import org.example.fincore.user.component.UserReader;
 import org.example.fincore.user.entity.User;
-import org.example.fincore.user.service.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,12 +24,12 @@ import org.springframework.transaction.annotation.Transactional;
 @AllArgsConstructor
 public class AccountQueryUseCase {
     private final AccountService accountService;
-    private final UserService userService;
+    private final UserReader userReader;
     private final AccountTransactionRepository accountTransactionRepository;
 
     @Transactional(readOnly = true)
     public AccountDetailResponseDto getAccountDetail(Long accountId, FinCoreUserDetails userDetails) {
-        User user = userService.findUserByUserDetails(userDetails);
+        User user = userReader.getActiveUser(userDetails);
 
         Account account = accountService.findAccount(user, accountId);
 
@@ -38,7 +38,7 @@ public class AccountQueryUseCase {
 
     @Transactional(readOnly = true)
     public Page<TransactionViewResponseDto> getTransactions(Long accountId, FinCoreUserDetails userDetails, TransactionViewRequestDto requestDto) {
-        User user = userService.findUserByUserDetails(userDetails);
+        User user = userReader.getActiveUser(userDetails);
 
         Account account = accountService.findAccount(user, accountId);
 
@@ -50,7 +50,7 @@ public class AccountQueryUseCase {
 
     @Transactional(readOnly = true)
     public TransactionViewResponseDto getTransaction(Long transactionId, FinCoreUserDetails userDetails) {
-        User user = userService.findUserByUserDetails(userDetails);
+        User user = userReader.getActiveUser(userDetails);
 
         AccountTransaction transaction = accountTransactionRepository.findByTransactionId(transactionId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ACCOUNT_NOT_FOUND));

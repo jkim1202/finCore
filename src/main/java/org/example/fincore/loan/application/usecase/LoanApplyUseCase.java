@@ -10,8 +10,8 @@ import org.example.fincore.loan.application.repository.LoanApplicationRepository
 import org.example.fincore.loan.product.entity.LoanProduct;
 import org.example.fincore.loan.product.service.LoanProductService;
 import org.example.fincore.security.FinCoreUserDetails;
+import org.example.fincore.user.component.UserReader;
 import org.example.fincore.user.entity.User;
-import org.example.fincore.user.service.UserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,13 +19,13 @@ import org.springframework.transaction.annotation.Transactional;
 @AllArgsConstructor
 public class LoanApplyUseCase {
     private final AccountService accountService;
-    private final UserService userService;
+    private final UserReader userReader;
     private final LoanProductService loanProductService;
     private final LoanApplicationRepository loanApplicationRepository;
 
     @Transactional
     public LoanApplicationResponseDto applyLoan(LoanApplicationRequestDto requestDto, FinCoreUserDetails userDetails) {
-        User user = userService.findUserByUserDetails(userDetails);
+        User user = userReader.getActiveUser(userDetails);
 
         LoanProduct loanProduct = loanProductService.getLoanProduct(requestDto.loanProductId());
 

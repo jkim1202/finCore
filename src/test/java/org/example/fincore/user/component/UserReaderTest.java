@@ -1,4 +1,4 @@
-package org.example.fincore.user.service;
+package org.example.fincore.user.component;
 
 import org.example.fincore.common.exception.BusinessException;
 import org.example.fincore.common.exception.ErrorCode;
@@ -25,46 +25,46 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class UserServiceTest {
+class UserReaderTest {
 
-    private UserService userService;
+    private UserReader userReader;
 
     @Mock
     private UserRepository userRepository;
 
     @BeforeEach
     void setUp() {
-        userService = new UserService(userRepository);
+        userReader = new UserReader(userRepository);
     }
 
     @DisplayName("인증 사용자 ID로 활성 사용자를 조회한다")
     @Test
-    void findUserByUserDetailsReturnsActiveUser() {
+    void getActiveUserReturnsActiveUser() {
         User user = user(1L, UserStatus.ACTIVE);
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
-        User result = userService.findUserByUserDetails(userDetails(1L));
+        User result = userReader.getActiveUser(userDetails(1L));
 
         assertThat(result).isEqualTo(user);
     }
 
     @DisplayName("인증 사용자 ID에 해당하는 사용자가 없으면 USER_NOT_FOUND 예외를 던진다")
     @Test
-    void findUserByUserDetailsRejectsMissingUser() {
+    void getActiveUserRejectsMissingUser() {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> userService.findUserByUserDetails(userDetails(1L)))
+        assertThatThrownBy(() -> userReader.getActiveUser(userDetails(1L)))
                 .isInstanceOfSatisfying(BusinessException.class, exception ->
                         assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.USER_NOT_FOUND));
     }
 
     @DisplayName("비활성 사용자는 AUTH_USER_STATUS_NOT_ACTIVE 예외로 거부한다")
     @Test
-    void findUserByUserDetailsRejectsInactiveUser() {
+    void getActiveUserRejectsInactiveUser() {
         User user = user(1L, UserStatus.INACTIVE);
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
-        assertThatThrownBy(() -> userService.findUserByUserDetails(userDetails(1L)))
+        assertThatThrownBy(() -> userReader.getActiveUser(userDetails(1L)))
                 .isInstanceOfSatisfying(BusinessException.class, exception ->
                         assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.AUTH_USER_STATUS_NOT_ACTIVE));
     }

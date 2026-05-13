@@ -6,8 +6,8 @@ import org.example.fincore.account.entity.Account;
 import org.example.fincore.account.service.AccountNumberGenerator;
 import org.example.fincore.account.service.AccountService;
 import org.example.fincore.security.FinCoreUserDetails;
+import org.example.fincore.user.component.UserReader;
 import org.example.fincore.user.entity.User;
-import org.example.fincore.user.service.UserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,12 +15,12 @@ import org.springframework.transaction.annotation.Transactional;
 @AllArgsConstructor
 public class AccountCreateUseCase {
     private final AccountService accountService;
-    private final UserService userService;
+    private final UserReader userReader;
     private final AccountNumberGenerator accountNumberGenerator;
 
     @Transactional
     public AccountCreateResponseDto createAccount(FinCoreUserDetails userDetails){
-        User user = userService.findUserByUserDetails(userDetails);
+        User user = userReader.getActiveUser(userDetails);
 
         String accountNumber = accountNumberGenerator.generate();
 

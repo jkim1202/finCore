@@ -13,7 +13,7 @@ import org.example.fincore.security.FinCoreUserDetails;
 import org.example.fincore.user.entity.User;
 import org.example.fincore.user.entity.UserRole;
 import org.example.fincore.user.entity.UserStatus;
-import org.example.fincore.user.service.UserService;
+import org.example.fincore.user.component.UserReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -40,14 +40,14 @@ class AccountDepositUseCaseTest {
     private AccountService accountService;
 
     @Mock
-    private UserService userService;
+    private UserReader userReader;
 
     @Mock
     private AccountTransactionRepository accountTransactionRepository;
 
     @BeforeEach
     void setUp() {
-        accountDepositUseCase = new AccountDepositUseCase(accountService, userService, accountTransactionRepository);
+        accountDepositUseCase = new AccountDepositUseCase(accountService, userReader, accountTransactionRepository);
     }
 
     @DisplayName("입금 유스케이스는 사용자와 계좌를 검증한 뒤 입금 처리를 위임한다")
@@ -66,7 +66,7 @@ class AccountDepositUseCaseTest {
                 BigDecimal.valueOf(1_500),
                 null
         );
-        when(userService.findUserByUserDetails(userDetails)).thenReturn(user);
+        when(userReader.getActiveUser(userDetails)).thenReturn(user);
         when(accountService.findAccount(user, account.getId())).thenReturn(account);
         when(accountService.deposit(request.amount(), account)).thenReturn(expected);
 
@@ -81,7 +81,7 @@ class AccountDepositUseCaseTest {
         FinCoreUserDetails userDetails = userDetails(1L);
         User user = user(1L);
         AccountDepositRequestDto request = new AccountDepositRequestDto(BigDecimal.valueOf(500));
-        when(userService.findUserByUserDetails(userDetails)).thenReturn(user);
+        when(userReader.getActiveUser(userDetails)).thenReturn(user);
         when(accountService.findAccount(user, 10L))
                 .thenThrow(new BusinessException(ErrorCode.ACCOUNT_NOT_FOUND));
 

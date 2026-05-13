@@ -6,8 +6,8 @@ import org.example.fincore.account.dto.AccountWithdrawResponseDto;
 import org.example.fincore.account.entity.Account;
 import org.example.fincore.account.service.AccountService;
 import org.example.fincore.security.FinCoreUserDetails;
+import org.example.fincore.user.component.UserReader;
 import org.example.fincore.user.entity.User;
-import org.example.fincore.user.service.UserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,11 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
 @AllArgsConstructor
 public class AccountWithdrawUseCase {
     private final AccountService accountService;
-    private final UserService userService;
+    private final UserReader userReader;
 
     @Transactional
     public AccountWithdrawResponseDto withdraw(Long accountId, FinCoreUserDetails userDetails, AccountWithdrawRequestDto accountWithdrawRequestDto) {
-        User user = userService.findUserByUserDetails(userDetails);
+        User user = userReader.getActiveUser(userDetails);
 
         // 계좌 (비관적) 락 획득 시도
         Account account = accountService.findAccountForUpdate(user, accountId);
