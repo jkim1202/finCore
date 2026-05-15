@@ -6,6 +6,9 @@ import org.example.fincore.loan.application.dto.LoanApplicationSearchResponseDto
 import org.example.fincore.loan.application.entity.LoanApplicationStatus;
 import org.example.fincore.loan.application.usecase.LoanApplicationSearchUseCase;
 import org.example.fincore.loan.application.usecase.LoanApplyUseCase;
+import org.example.fincore.loan.review.dto.LoanReviewResponseDto;
+import org.example.fincore.loan.review.entity.LoanReviewDecision;
+import org.example.fincore.loan.review.usecase.LoanApplicationReviewUseCase;
 import org.example.fincore.security.FinCoreUserDetails;
 import org.example.fincore.user.entity.UserStatus;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,13 +54,20 @@ class LoanApplicationControllerTest {
     @Mock
     private LoanApplicationSearchUseCase loanApplicationSearchUseCase;
 
+    @Mock
+    private LoanApplicationReviewUseCase loanApplicationReviewUseCase;
+
     @BeforeEach
     void setUp() {
         LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
         validator.afterPropertiesSet();
 
         mockMvc = MockMvcBuilders
-                .standaloneSetup(new LoanApplicationController(loanApplyUseCase, loanApplicationSearchUseCase))
+                .standaloneSetup(new LoanApplicationController(
+                        loanApplyUseCase,
+                        loanApplicationSearchUseCase,
+                        loanApplicationReviewUseCase
+                ))
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .setValidator(validator)
                 .setCustomArgumentResolvers(authenticationPrincipalResolver())
@@ -154,6 +164,34 @@ class LoanApplicationControllerTest {
                 .andExpect(jsonPath("$.requestedTermMonths").value(12))
                 .andExpect(jsonPath("$.annualIncome").value(50000000))
                 .andExpect(jsonPath("$.status").value("SUBMITTED"));
+    }
+
+    @DisplayName("대출 신청 심사 요청이 성공하면 심사 결과를 200으로 반환한다")
+    @Test
+    void reviewLoanApplicationReturnsReviewResult() throws Exception {
+        when(loanApplicationReviewUseCase.reviewLoanApplication(
+                org.mockito.ArgumentMatchers.eq(1L),
+                nullable(FinCoreUserDetails.class)
+        ))
+                .thenReturn(new LoanReviewResponseDto(
+                        1L,
+                        1L,
+                        LoanReviewDecision.APPROVED,
+                        new BigDecimal("50000000.00"),
+                        new BigDecimal("1000000.00"),
+                        null,
+                        LoanApplicationStatus.APPROVED,
+                        LocalDateTime.of(2026, 5, 13, 1, 30)
+                ));
+
+        mockMvc.perform(post("/api/v1/loan-applications/1/review"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.reviewId").value(1))
+                .andExpect(jsonPath("$.applicationId").value(1))
+                .andExpect(jsonPath("$.decision").value("APPROVED"))
+                .andExpect(jsonPath("$.approvedLimit").value(50000000))
+                .andExpect(jsonPath("$.approvedAmount").value(1000000))
+                .andExpect(jsonPath("$.applicationStatus").value("APPROVED"));
     }
 
     private HandlerMethodArgumentResolver authenticationPrincipalResolver() {

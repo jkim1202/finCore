@@ -25,6 +25,12 @@ public class LoanApplicationReader {
         return loanApplication;
     }
 
+    public LoanApplication getSubmittedForReview(Long applicationId) {
+        LoanApplication loanApplication = getById(applicationId);
+        loanApplication.validateReviewable();
+        return loanApplication;
+    }
+
     private void validateReadableBy(LoanApplication loanApplication, User user) {
         boolean owner = loanApplication.getUser().getId().equals(user.getId());
         boolean admin = user.getRoles().contains(UserRole.ADMIN);
