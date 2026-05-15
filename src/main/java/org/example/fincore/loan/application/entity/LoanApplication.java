@@ -85,6 +85,24 @@ public class LoanApplication {
                 .build();
     }
 
+    public void approveReview() {
+        validateReviewable();
+        this.status = LoanApplicationStatus.APPROVED;
+        this.reviewedAt = LocalDateTime.now();
+    }
+
+    public void rejectReview() {
+        validateReviewable();
+        this.status = LoanApplicationStatus.REJECTED;
+        this.reviewedAt = LocalDateTime.now();
+    }
+
+    public void validateReviewable() {
+        if (!LoanApplicationStatus.SUBMITTED.equals(status)) {
+            throw new BusinessException(ErrorCode.LOAN_APPLICATION_INVALID_STATUS);
+        }
+    }
+
     private static void validateRequestedTerm(LoanProduct loanProduct, Integer requestedTermMonths) {
         if(loanProduct.getMinTermMonths() > requestedTermMonths || loanProduct.getMaxTermMonths() < requestedTermMonths) {
             throw new BusinessException(ErrorCode.LOAN_PRODUCT_INVALID_LOAN_TERM_MONTHS);

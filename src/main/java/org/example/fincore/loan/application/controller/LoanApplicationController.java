@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import org.example.fincore.loan.application.dto.LoanApplicationRequestDto;
 import org.example.fincore.loan.application.dto.LoanApplicationResponseDto;
 import org.example.fincore.loan.application.dto.LoanApplicationSearchResponseDto;
+import org.example.fincore.loan.review.dto.LoanReviewResponseDto;
+import org.example.fincore.loan.review.usecase.LoanApplicationReviewUseCase;
 import org.example.fincore.loan.application.usecase.LoanApplicationSearchUseCase;
 import org.example.fincore.loan.application.usecase.LoanApplyUseCase;
 import org.example.fincore.security.FinCoreUserDetails;
@@ -19,6 +21,8 @@ import org.springframework.web.bind.annotation.*;
 public class LoanApplicationController {
     private final LoanApplyUseCase loanApplyUseCase;
     private final LoanApplicationSearchUseCase loanApplicationSearchUseCase;
+    private final LoanApplicationReviewUseCase loanApplicationReviewUseCase;
+
     @PostMapping("")
     public ResponseEntity<LoanApplicationResponseDto> createLoanApplication(
             @Valid @RequestBody LoanApplicationRequestDto loanApplicationRequestDto,
@@ -36,6 +40,16 @@ public class LoanApplicationController {
     ){
         return ResponseEntity.ok(
                 loanApplicationSearchUseCase.searchLoanApplication(applicationId, userDetails)
+        );
+    }
+
+    @PostMapping("/{applicationId}/review")
+    public ResponseEntity<LoanReviewResponseDto> reviewLoanApplication(
+            @PathVariable Long applicationId,
+            @AuthenticationPrincipal FinCoreUserDetails userDetails
+    ){
+        return ResponseEntity.ok(
+                loanApplicationReviewUseCase.reviewLoanApplication(applicationId, userDetails)
         );
     }
 }
